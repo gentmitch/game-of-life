@@ -11,8 +11,21 @@
 	];
 
 	let width = 50;
+	let height = 50;
 
-	let state = new Array(width).fill(new Array(width).fill(0));
+	const createBoard = () => {
+		return new Array(width).fill(0).map(() => new Array(width).fill(0));
+	};
+
+	const reset = () => {
+		state = createBoard();
+	};
+
+	const setAlive = (i, j) => {
+		state[i][j] = 1;
+	};
+
+	$: state = createBoard();
 
 	onMount(() => {
 		startingAlive.forEach((item, i) => {
@@ -20,34 +33,70 @@
 		});
 	});
 
-	// const run = () => {
-	// 	startingAlive.forEach((item) => {});
-	// 	// while (true) {
-	// 	// 	if (stop) break;
-	// 	// }
-	// };
+	const isAlive = (x, y) => {
+		return state[y] && state[y][x] == 1;
+	};
+
+	const countNeighbors = (x, y) => {
+		const dirs = [
+			[-1, -1],
+			[-1, 0],
+			[-1, 1],
+			[0, -1],
+			[0, 1],
+			[1, -1],
+			[1, 0],
+			[1, 1]
+		];
+		let count = 0;
+
+		for (let dir of dirs) {
+			if (isAlive(x + dir[0], y + dir[1])) {
+				count++;
+			}
+		}
+
+		return count;
+	};
+
+	const nextGeneration = () => {
+		console.log('LOGGING');
+		const newBoard = createBoard();
+
+		for (let y = 0; y < height; y++) {
+			for (let x = 0; x < width; x++) {
+				const neighbors = countNeighbors(x, y);
+
+				if (isAlive(x, y)) {
+					newBoard[y][x] = neighbors === 2 || neighbors === 3 ? 1 : 0;
+				} else {
+					newBoard[y][x] = neighbors === 3 ? 1 : 0;
+				}
+			}
+		}
+
+		state = newBoard;
+	};
 	// run();
 </script>
 
-<button on:click={() => (stop = !stop)}> Toggle</button>
+<button on:click={() => nextGeneration()}>Next generation</button>
+<button on:click={reset}>Reset</button>
 <div class="container">
 	{#each state as row, i}
 		<div class="row">
 			{#each row as block, j (`${i}:${j}`)}
-				{#if block === 1}
-					<div class={`block black`} id={`${i}:${j}`} />
-				{:else}
-					<div class={`block`} id={`${i}:${j}`} />
-				{/if}
+				<div
+					class={`block ${block === 1 ? 'black' : ''}`}
+					on:click={() => setAlive(i, j)}
+					id={`${i}:${j}`}
+				/>
 			{/each}
 		</div>
 	{/each}
 </div>
 
 <style>
-	.container {
-		/* display: grid; */
-	}
 	.row {
 		box-sizing: border-box;
 		margin: 0;
