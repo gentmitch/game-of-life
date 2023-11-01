@@ -1,17 +1,11 @@
 <script>
-	import { onMount } from 'svelte';
-
-	let startingAlive = [
-		[0, 0],
-		[0, 1],
-		[0, 2],
-		[1, 0],
-		[1, 1],
-		[1, 2]
-	];
-
+	import { onMount, tick } from 'svelte';
+	import patterns from '../data.json';
+	let startingAlive = patterns.patterns.spaceships.glider;
+	console.log(startingAlive);
 	let width = 50;
 	let height = 50;
+	$: playing = false;
 
 	const createBoard = () => {
 		return new Array(width).fill(0).map(() => new Array(width).fill(0));
@@ -19,18 +13,21 @@
 
 	const reset = () => {
 		state = createBoard();
+		startingAlive.forEach((item, i) => {
+			item.forEach((s, j) => {
+				state[i][j] = s;
+			});
+		});
 	};
 
 	const setAlive = (i, j) => {
 		state[i][j] = 1;
 	};
 
-	$: state = createBoard();
+	let state = createBoard();
 
 	onMount(() => {
-		startingAlive.forEach((item, i) => {
-			state[item[0]][item[1]] = 1;
-		});
+		reset();
 	});
 
 	const isAlive = (x, y) => {
@@ -60,7 +57,6 @@
 	};
 
 	const nextGeneration = () => {
-		console.log('LOGGING');
 		const newBoard = createBoard();
 
 		for (let y = 0; y < height; y++) {
@@ -76,12 +72,20 @@
 		}
 
 		state = newBoard;
+		if (!playing) return;
+		tick();
+		window.requestAnimationFrame(nextGeneration);
 	};
-	// run();
+	const run = async () => {
+		playing = true;
+		window.requestAnimationFrame(nextGeneration);
+	};
 </script>
 
 <button on:click={() => nextGeneration()}>Next generation</button>
 <button on:click={reset}>Reset</button>
+<button on:click={() => (playing = !playing)}> Stop</button>
+<button on:click={async () => run()}>Run</button>
 <div class="container">
 	{#each state as row, i}
 		<div class="row">
