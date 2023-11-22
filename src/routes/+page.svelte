@@ -1,8 +1,8 @@
-<script>
+<script lang="ts">
 	import { onMount, tick } from 'svelte';
 	import patterns from '../data.json';
 	let startingAlive = patterns.patterns.spaceships.glider;
-	console.log(startingAlive);
+
 	let width = 50;
 	let height = 50;
 	$: playing = false;
@@ -20,7 +20,7 @@
 		});
 	};
 
-	const setAlive = (i, j) => {
+	const setAlive = (i: number, j: number) => {
 		state[i][j] = 1;
 	};
 
@@ -30,11 +30,11 @@
 		reset();
 	});
 
-	const isAlive = (x, y) => {
+	const isAlive = (x: number, y: number) => {
 		return state[y] && state[y][x] == 1;
 	};
 
-	const countNeighbors = (x, y) => {
+	const countNeighbors = (x: number, y: number) => {
 		const dirs = [
 			[-1, -1],
 			[-1, 0],
@@ -56,7 +56,7 @@
 		return count;
 	};
 
-	const nextGeneration = () => {
+	const nextGeneration = async () => {
 		const newBoard = createBoard();
 
 		for (let y = 0; y < height; y++) {
@@ -88,6 +88,7 @@
 <button on:click={async () => run()}>Run</button>
 <div class="container">
 	{#each state as row, i}
+		<!-- I know I should use a button, lifes to show to unset all -->
 		<div class="row">
 			{#each row as block, j (`${i}:${j}`)}
 				<div
