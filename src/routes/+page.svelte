@@ -20,7 +20,7 @@
 		});
 	};
 
-	const setAlive = (i: number, j: number) => {
+	const setAlive = (i, j) => {
 		state[i][j] = 1;
 	};
 
@@ -30,11 +30,11 @@
 		reset();
 	});
 
-	const isAlive = (x: number, y: number) => {
+	const isAlive = (x, y) => {
 		return state[y] && state[y][x] == 1;
 	};
 
-	const countNeighbors = (x: number, y: number) => {
+	const countNeighbors = (x, y) => {
 		const dirs = [
 			[-1, -1],
 			[-1, 0],
@@ -73,7 +73,7 @@
 
 		state = newBoard;
 		if (!playing) return;
-		tick();
+		await tick();
 		window.requestAnimationFrame(nextGeneration);
 	};
 	const run = async () => {
@@ -94,6 +94,7 @@
 				<div
 					class={`block ${block === 1 ? 'black' : ''}`}
 					on:click={() => setAlive(i, j)}
+					on:dragenter={()=> setAlive(i, j)}
 					id={`${i}:${j}`}
 				/>
 			{/each}
