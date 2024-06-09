@@ -13,6 +13,7 @@
 	let playing = $state(false);
 	let count = $state(0);
 	let fps = $state(4);
+	let mousedown = $state(false);
 	let boardState = $state(createBoard());
 
 	$effect.pre(() => {
@@ -128,11 +129,9 @@
 		i: number,
 		j: number
 	): void => {
-		console.log(e.buttons);
-		if (e.buttons === 1) {
-			toggleState(i, j);
-		}
-		e.preventDefault();
+		if (e.type === 'mouseover' && !mousedown) return;
+		toggleState(i, j);
+		// e.preventDefault();
 		e.currentTarget.blur();
 	};
 
@@ -178,7 +177,12 @@
 				onlongpress={() => nextGeneration()}>Next generation</button
 			>
 		</div>
-		<div class="items-center">
+		<!-- svelte-ignore a11y_no_static_element_interactions -->
+		<div
+			class="items-center"
+			onmouseup={(_) => (mousedown = false)}
+			onmousedown={(_) => (mousedown = true)}
+		>
 			{#each boardState as row, i}
 				<div class="m-0 p-0 flex box-border">
 					{#each row as block, j (`${i}${j}`)}
@@ -186,7 +190,8 @@
 							class={`btn-ghost outline-none h-[20px] w-[20px] border border-slate-400 ${
 								block === 1 ? 'bg-slate-400' : ''
 							}`}
-							onmousemove={(event) => once(onMouseMove(event, i, j))}
+							onclick={(event) => onMouseMove(event, i, j)}
+							onmouseover={(event) => onMouseMove(event, i, j)}
 						></button>
 					{/each}
 				</div>
